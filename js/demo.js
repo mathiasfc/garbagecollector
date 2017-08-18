@@ -1,39 +1,44 @@
-/*  demo.js http://github.com/bgrins/javascript-astar
-    MIT License
+//Trabalho IA T1
 
-    Set up the demo page for the A* Search
-*/
-/* global Graph, astar, $ */
+var WALL = 0;
+var agenteIniciado =false;
 
-var WALL = 0,
-    performance = window.performance;
-
+class Agente {
+	constructor(x,y,bateria,capacidade) {
+	this.x = x;
+	this.y = y;
+	this.bateria = bateria;
+	this.capacidade = capacidade;
+	}
+}
+	
 $(function() {
-
     var $grid = $("#search_grid"),
-        $selectWallFrequency = $("#selectWallFrequency"),
         $selectGridSize = $("#selectGridSize");
-        //$checkDebug = $("#checkDebug"),
-        //$searchDiagonal = $("#searchDiagonal"),
-        //$checkClosest = $("#checkClosest");
+		//$("#nrLixeiras").val();
+		//$("#nrPontoRecarga").val();
 
     var opts = {
-        wallFrequency: $selectWallFrequency.val(),
         gridSize: $selectGridSize.val(),
-        debug: false,
-        diagonal: true,
-        closest: false
+		nrLixeiras: 4,
+		nrPontosRecarga:4
     };
 
     var grid = new GraphSearch($grid, opts, astar.search);
-
-    $("#btnGenerate").click(function() {
-        grid.initialize();
-    });
-
-    $selectWallFrequency.change(function() {
-        grid.setOption({wallFrequency: $(this).val()});
-        grid.initialize();
+    
+	
+    $("#btnInit").click(function() {
+        //grid.initialize();
+		
+		//var capacidade = $("#tamRepositorio").val();
+		//var nrLixeiras = $("#tamRepositorio").val();
+		//var agente = new Agente(0,0,100,50);
+		if(!agenteIniciado){
+			var agente = new Agente(0,0,100,50);
+			agente.initialize();
+			agenteIniciado = true;	
+		}
+		
     });
 
     $selectGridSize.change(function() {
@@ -41,43 +46,20 @@ $(function() {
         grid.initialize();
     });
 
-    /*$checkDebug.change(function() {
-        grid.setOption({debug: $(this).is(":checked")});
-    });*/
-
-    /*$searchDiagonal.change(function() {
-        var val = $(this).is(":checked");
-        grid.setOption({diagonal: val});
-        grid.graph.diagonal = val;
-    });*/
-
-    /*$checkClosest.change(function() {
-        grid.setOption({closest: $(this).is(":checked")});
-    });*/
-
-    /*$("#generateWeights").click( function () {
-        if ($("#generateWeights").prop("checked")) {
-            $('#weightsKey').slideDown();
-        } else {
-            $('#weightsKey').slideUp();
-        }
-    });*/
-
 });
 
 var css = { start: "start", finish: "finish", wall: "wall", active: "active" };
 
-function GraphSearch($graph, options, implementation) {
+function GraphSearch($graph, options) {
     this.$graph = $graph;
-    this.search = implementation;
-    this.opts = $.extend({wallFrequency:0.1, debug:true, gridSize:10}, options);
+    this.opts = $.extend({wallFrequency:0.1, debug:true, gridSize:120}, options);
     this.initialize();
 }
 GraphSearch.prototype.setOption = function(opt) {
     this.opts = $.extend(this.opts, opt);
-    this.drawDebugInfo();
 };
 GraphSearch.prototype.initialize = function() {
+	
     this.grid = [];
     var self = this,
         nodes = [],
@@ -85,151 +67,143 @@ GraphSearch.prototype.initialize = function() {
 
     $graph.empty();
 
-    var cellWidth = ($graph.width()/this.opts.gridSize)-2,  // -2 for border
+    var cellWidth = ($graph.width()/this.opts.gridSize)-2, //borda
         cellHeight = ($graph.height()/this.opts.gridSize)-2,
-        $cellTemplate = $("<span />").addClass("grid_item").width(cellWidth).height(cellHeight),
+		lineHeight = (this.opts.gridSize >= 30 ? "9.px":($graph.height()/this.opts.gridSize)-10+"px"),
+		fontSize = (this.opts.gridSize >= 30 ? "10px":"20px");
+        $cellTemplate = $("<span />").addClass("grid_item").width(cellWidth).height(cellHeight).css("line-height",lineHeight).css("font-size",fontSize),
         startSet = false;
 
     for(var x = 0; x < this.opts.gridSize; x++) {
-        var $row = $("<div class='clear' />"),
-            nodeRow = [],
-            gridRow = [];
+        var $row = $("<div class='row' />");
+            //nodeRow = [],
+            //gridRow = [];
 
         for(var y = 0; y < this.opts.gridSize; y++) {
             var id = "cell_"+x+"_"+y,
                 $cell = $cellTemplate.clone();
             $cell.attr("id", id).attr("x", x).attr("y", y);
             $row.append($cell);
-            gridRow.push($cell);
-
-            var isWall = Math.floor(Math.random()*(1/self.opts.wallFrequency));
-            if(isWall === 0) {
-                nodeRow.push(WALL);
+			
+			var isWall = PreencheParede(x,y,this.opts.gridSize);
+            if(isWall === 1) {
                 $cell.addClass(css.wall);
             }
             else  {
-                var cell_weight = 1;
-                nodeRow.push(cell_weight);
-                $cell.addClass('weight' + cell_weight);
-                if (!startSet) {
-                    $cell.addClass(css.start);
-                    startSet = true;
-                }
+
+					$cell.addClass('weight1');
             }
         }
         $graph.append($row);
-
-        this.grid.push(gridRow);
-        nodes.push(nodeRow);
     }
-
-    this.graph = new Graph(nodes);
-
-    // bind cell event, set start/wall positions
-    this.$cells = $graph.find(".grid_item");
-    this.$cells.click(function() {
-        self.cellClicked($(this));
-    });
+	ColocaLixeiras(this.opts.nrLixeiras);
+	ColocaPontosRecarga(this.opts.nrPontosRecarga);
+	var totalCelulasLivresAmbiente = Math.pow(this.opts.gridSize, 2) - this.opts.nrLixeiras - this.opts.nrPontosRecarga;
+	ColocaSujeira(totalCelulasLivresAmbiente);
+	
+	console.log("matriz iniciada");
+	
 };
-GraphSearch.prototype.cellClicked = function($end) {
 
-    var end = this.nodeFromElement($end);
 
-    if($end.hasClass(css.wall) || $end.hasClass(css.start)) {
-        return;
-    }
+PreencheParede = function(x,y,size){
+	var limitPointLeftUp = [2,3];
+	var limitPointRightUp = [2,size-4];
+	
+	var limitPointLeftDown = [size-4,2];
+	var limitPointRightDown = [size-4,size-4];
+	
+	
+	if((x == 2 && y == 2) || (x == 2 && y == size-3)){
+		return 1;
+	}
+	
+	if((x == size-3 && y == 2) || (x == size-3 && y == size-3)){
+		return 1;
+	}
+	
+	if(x >= 2 && (y == 3 && x>=limitPointLeftUp[0] && x<= limitPointLeftDown[0]+1)){
+		return 1;
+	}
+	
+	if(x >= 2 && (y == size-4 && x>=limitPointRightUp[0] && x<= limitPointRightDown[0]+1)){
+		return 1;
+	}
+	
+	/*if( x == limitPointLeftUp[0] && (y > limitPointLeftUp[1] && y < limitPointRightUp[1]) && (limitPointRightUp[1] - limitPointLeftUp[1] > 4)){
+		return 1;
+	}
+	
+	if( x == limitPointLeftDown[0]+1 && (y > limitPointLeftDown[1] && y < limitPointRightDown[1]) && (limitPointRightDown[1] - limitPointLeftDown[1] > 4)){
+		return 1;
+	}*/
+}
 
-    this.$cells.removeClass(css.finish);
-    $end.addClass("finish");
-    var $start = this.$cells.filter("." + css.start),
-        start = this.nodeFromElement($start);
+ColocaLixeiras = function(nrLixeiras){
+	var gridSize = $("#selectGridSize").val();
+	var i =0;
+	while(i < nrLixeiras){
+		var randomX = getRandomInt(1,gridSize-1);
+		var randomY = getRandomInt(0,gridSize-1);
+		var cell = $("#search_grid .row .grid_item[x="+randomX+"][y="+randomY+"]");
+		if(!cell.hasClass("wall") && !cell.hasClass("lixeira")){
+			cell.addClass("lixeira");
+			cell.wrapInner("<span>L</span>");
+			i++;
+		}
+	}
+}
 
-    var sTime = performance ? performance.now() : new Date().getTime();
+ColocaPontosRecarga = function(nrPontosRecarga){
+	var gridSize = $("#selectGridSize").val();
+	var i =0;
+	while(i < nrPontosRecarga){
+		var randomX = getRandomInt(1,gridSize-1);
+		var randomY = getRandomInt(0,gridSize-1);
+		var cell = $("#search_grid .row .grid_item[x="+randomX+"][y="+randomY+"]");
+		if(!cell.hasClass("wall") && !cell.hasClass("lixeira") && !cell.hasClass("pontoRecarga")){
+			cell.addClass("pontoRecarga");
+			cell.wrapInner("<span>R</span>");
+			i++;
+		}
+	}
+}
 
-    var path = this.search(this.graph, start, end, {
-        closest: this.opts.closest
-    });
-    var fTime = performance ? performance.now() : new Date().getTime(),
-        duration = (fTime-sTime).toFixed(2);
+ColocaSujeira = function(totalCelulasLivres){
+	var gridSize = $("#selectGridSize").val();
+	//Porcentagem de sujeira, entre 40 e 85
+	var porcentagem = getRandomInt(10,20);
+	var numeroDeSujeiras = (porcentagem/100)*totalCelulasLivres;
+	console.log(porcentagem+"% de "+totalCelulasLivres+" = "+ numeroDeSujeiras.toFixed(0) +" sujeiras exibidas.");
+	var i =0;
+	while(i < numeroDeSujeiras){
+		var randomX = getRandomInt(0,gridSize);
+		var randomY = getRandomInt(0,gridSize);
+		if(randomX == 0 && randomY == 0) continue;
+		var cell = $("#search_grid .row .grid_item[x="+randomX+"][y="+randomY+"]");
+		if(!cell.hasClass("wall") && !cell.hasClass("lixeira") && !cell.hasClass("pontoRecarga") && !cell.hasClass("sujeira")){
+			cell.addClass("sujeira");
+			cell.wrapInner("<span>s</span>");
+			i++;
+		}
+	}
+}
 
-    if(path.length === 0) {
-        $("#message").text("couldn't find a path (" + duration + "ms)");
-        this.animateNoPath();
-    }
-    else {
-        $("#message").text("search took " + duration + "ms.");
-        this.drawDebugInfo();
-        this.animatePath(path);
-    }
-};
-GraphSearch.prototype.drawDebugInfo = function() {
-    this.$cells.html(" ");
-    var that = this;
-    if(this.opts.debug) {
-        that.$cells.each(function() {
-            var node = that.nodeFromElement($(this)),
-                debug = false;
-            if (node.visited) {
-                debug = "F: " + node.f + "<br />G: " + node.g + "<br />H: " + node.h;
-            }
+function getRandomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
 
-            if (debug) {
-                $(this).html(debug);
-            }
-        });
-    }
-};
-GraphSearch.prototype.nodeFromElement = function($cell) {
-    return this.graph.grid[parseInt($cell.attr("x"))][parseInt($cell.attr("y"))];
-};
-GraphSearch.prototype.animateNoPath = function() {
-    var $graph = this.$graph;
-    var jiggle = function(lim, i) {
-        if(i>=lim) { $graph.css("top", 0).css("left", 0); return; }
-        if(!i) i=0;
-        i++;
-        $graph.css("top", Math.random()*6).css("left", Math.random()*6);
-        setTimeout(function() {
-            jiggle(lim, i);
-        }, 5);
-    };
-    jiggle(15);
-};
-GraphSearch.prototype.animatePath = function(path) {
-    var grid = this.grid,
-        timeout = 1000 / grid.length,
-        elementFromNode = function(node) {
-        return grid[node.x][node.y];
-    };
 
-    var self = this;
-    // will add start class if final
-    var removeClass = function(path, i) {
-        if(i >= path.length) { // finished removing path, set start positions
-            return setStartClass(path, i);
-        }
-        elementFromNode(path[i]).removeClass(css.active);
-        setTimeout(function() {
-            removeClass(path, i+1);
-        }, timeout*path[i].getCost());
-    };
-    var setStartClass = function(path, i) {
-        if(i === path.length) {
-            self.$graph.find("." + css.start).removeClass(css.start);
-            elementFromNode(path[i-1]).addClass(css.start);
-        }
-    };
-    var addClass = function(path, i) {
-        if(i >= path.length) { // Finished showing path, now remove
-            return removeClass(path, 0);
-        }
-        elementFromNode(path[i]).addClass(css.active);
-        setTimeout(function() {
-            addClass(path, i+1);
-        }, timeout*path[i].getCost());
-    };
-
-    addClass(path, 0);
-    this.$graph.find("." + css.start).removeClass(css.start);
-    this.$graph.find("." + css.finish).removeClass(css.finish).addClass(css.start);
+Agente.prototype.initialize = function() {
+	/*var gridSize = $("#selectGridSize").val();
+	for(var x = 0; x < gridSize; x++) {
+		for(var y = 0; y < gridSize; y++) {
+			
+		}
+	}*/
+	//$agente = this.$agente;
+	var cell = $("#search_grid .row .grid_item[x="+this.x+"][y="+this.y+"]");
+	cell.addClass("agente");
+	cell.wrapInner("<span>A</span>");
+	console.log("agente iniciado");
 };
