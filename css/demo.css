@@ -1,0 +1,105 @@
+html, body {
+	height:100%;
+	margin:0;
+	margin-top:50px;
+}
+body {
+    font-family: "Palatino Linotype", "Book Antiqua", Palatino, serif;
+}
+
+.clearfix {
+  *zoom: 1;
+}
+.clearfix:before, .clearfix:after {
+  display: table;
+  content: "";
+}
+.clearfix:after {
+  clear: both;
+}
+h2 {
+    font-weight:normal;
+}
+.links {
+    clear:both;
+    background: rgba(0, 0, 0, .1);
+    padding: 4px;
+    padding-left: 20px;
+	padding-bottom:5px;
+}
+.links a {
+    padding: 3px;
+    color: #339;
+}
+.buttons { 
+    float:right;
+    position:relative;
+    right: 10px;
+    top: 10px;
+}
+.buttons a {
+    text-decoration: none;
+}
+
+#graph {
+    overflow-x:scroll;
+    width: 90%;
+    font-size: .8em;
+    margin:0 auto;
+    white-space:pre;
+    border:none;
+}
+#content {
+	margin:0 auto;
+	width:98%;
+}
+
+#controls {
+	border: 1px solid red;
+	margin-bottom: 25px;
+	padding:5px;
+
+}
+#search_grid  {
+	width:650px;
+	height:650px;
+	position: relative;
+}
+
+#weightsKey {
+  display: none;
+}
+
+#main{
+	margin: auto;
+	width: 50%;
+}
+
+.grid_item {
+	display: block;
+	border: 1px solid #bbb;
+	float: left;
+	line-height:12px;
+	font-size:10px;
+}
+.grid_item.wall {
+  background-color: #000000;
+}
+.grid_item.weight1 {
+  background-color: #ffffff;
+}
+.grid_item.weight3 {
+  background-color: #D6EAFF;
+}
+.grid_item.weight5 {
+  background-color: #ABD1FF;
+}
+.grid_item.start {
+	background-color: #FF703F;
+}
+.grid_item.active {
+	background-color: #FF703F;
+}
+.grid_item.finish {
+
+}
