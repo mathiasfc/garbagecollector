@@ -1,13 +1,15 @@
 //Trabalho IA T1
 var WALL = 0;
 var agenteIniciado = false;
+var larguraGrid = $("#selectGridSize").val();
 
 class Agente {
-    constructor(x, y, bateria, capacidade) {
+    constructor(x, y, bateria, capacidade,distancia) {
         this.x = x;
         this.y = y;
         this.bateria = bateria;
         this.capacidade = capacidade;
+		this.distancia = distancia;
     }
 }
 
@@ -33,7 +35,7 @@ $(function() {
         //var nrLixeiras = $("#tamRepositorio").val();
         //var agente = new Agente(0,0,100,50);
         if (!agenteIniciado) {
-            var agente = new Agente(0, 0, 100, 50);
+            var agente = new Agente(0, 0, 100, 50, 0);
             agente.initialize();
             agenteIniciado = true;
         }
@@ -161,6 +163,7 @@ ColocaLixeiras = function(nrLixeiras) {
             i++;
         }
     }
+	$("#infoLixeiras").text(i);
 }
 
 ColocaPontosRecarga = function(nrPontosRecarga) {
@@ -176,6 +179,7 @@ ColocaPontosRecarga = function(nrPontosRecarga) {
             i++;
         }
     }
+	$("#infoRecarga").text(i);
 }
 
 ColocaSujeira = function(totalCelulasLivres) {
@@ -196,6 +200,7 @@ ColocaSujeira = function(totalCelulasLivres) {
             i++;
         }
     }
+	$("#infoSujeiras").text(i);
 }
 
 function getRandomInt(min, max) {
@@ -204,43 +209,68 @@ function getRandomInt(min, max) {
 
 
 Agente.prototype.initialize = function() {
-    /*var gridSize = $("#selectGridSize").val();
-    for(var x = 0; x < gridSize; x++) {
-    	for(var y = 0; y < gridSize; y++) {
-    		
-    	}
-    }*/
-    //$agente = this.$agente;
     console.log("agente iniciado");
+	AtualizaInformacoesAgente(this);
     var x = 0;
     var y = 0;
+	var swap = false;
     var timerId = 0;
-    timerId = setInterval(function() {
-        this.x = x;
-        this.y = y;
-
-
+	
+	var agente = this;
+    timerId = setInterval(function(){
         $("#search_grid .row .grid_item").removeClass("agente");
-        var cell = $("#search_grid .row .grid_item[x=" + this.x + "][y=" + this.y + "]");
-        cell.html("");
+        var cell = $("#search_grid .row .grid_item[x=" + agente.x + "][y=" + agente.y + "]");
+        //Verifica Colisões
+		if(cell.hasClass("sujeira")){
+			cell.removeClass("sujeira");
+			cell.html("");
+			agente.capacidade--;
+		}else if(cell.hasClass("pontoRecarga")){
+			
+		}else if(cell.hasClass("lixeira")){
+			
+		}else if(cell.hasClass("wall")){
+			
+		}
+		
         cell.addClass("agente");
-        //cell.wrapInner("<span>A</span>");
-        y++;
-        if (y == 20) {
+        agente.x = x;
+        agente.y = y;
+		
+		if(swap){
+			if(y == 0){
+				x++;;
+				swap = false;
+			}
+			y--;
+			
+		}else{
+			y++;	
+		}
+        
+        if (y == larguraGrid) {
             x++;
-            y = 0;
+            swap = true;
         }
 
-        if (x == 20) {
-            foo();
-            alert("STOP INTERVAL");
+        if (x == larguraGrid) {
+            stopInterval();
         }
-
-
+		
+		agente.bateria--;
+		agente.distancia++;
+		AtualizaInformacoesAgente(agente);
     }, 100);
 
 
-    var foo = function() {
+    var stopInterval = function() {
         clearInterval(timerId);
     };
 };
+
+
+AtualizaInformacoesAgente = function(agente){
+		$("#infoBateria").text(agente.bateria);
+		$("#infoCapacidade").text(agente.capacidade);
+		$("#infoSqms").text(agente.distancia);
+}

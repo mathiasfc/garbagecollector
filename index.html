@@ -30,11 +30,50 @@
 				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp<input type="number" id="nrBateria">
 
 	    		<br />
-	    		<input type="button" id="btnInit" value="Iniciar Varredura" />
+	    		<input type="button" id="btnInit" value="Iniciar Agente" />
 				<br />
 	    </div>
 
 	    <div id="main">
+		<div id="infoGrid">
+   <fieldset>
+      <legend>Informações do Grid</legend>
+      <table>
+	  <tr>
+            <td><span>Pontos de Recarga:</span></td>
+			<td><span id="infoRecarga" class="infoDivText"></span></td>
+         </tr>
+		 <tr>
+            <td><span>Sujeiras Restantes:</span></td>
+			<td><span id="infoSujeiras" class="infoDivText"></span></td>
+         </tr>
+         <tr>
+            <td><span>Lixeiras:</span></td>
+			<td><span id="infoLixeiras" class="infoDivText"></span></td>
+         </tr>
+      </table>
+   </fieldset>
+</div>
+
+<div id="infoAgente">
+   <fieldset>
+      <legend>Informações do Agente</legend>
+      <table>
+	  <tr>
+            <td><span>Bateria:</span></td>
+			<td><span id="infoBateria" class="infoDivText">Não Iniciado.</span></td>
+         </tr>
+		 <tr>
+            <td><span>Capacidade:</span></td>
+			<td><span id="infoCapacidade" class="infoDivText">Não Iniciado.</span></td>
+         </tr>
+         <tr>
+            <td><span>Sqm Percorridos:</span></td>
+			<td><span id="infoSqms" class="infoDivText">Não Iniciado.</span></td>
+         </tr>
+      </table>
+   </fieldset>
+</div>
 	    	<div id="search_grid">Loading...</div>
 	    </div>
 

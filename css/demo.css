@@ -100,7 +100,38 @@ h2 {
 	text-align: center;
 	color:grey;
 	font-size:20px;
-	background-color:#b5ddff !important;
+	background-color:red !important;
 	color: blue;
+	font-weight:bold;
+}
+
+#infoGrid{
+	position: absolute;
+    left: 7%;
+    width: 300px;
+	
+}
+
+#infoAgente{
+	position: absolute;
+	top:220px;
+    left: 7%;
+    width: 300px;
+}
+
+
+fieldset{
+	color:white;
+	background: #1d1d1d;
+}
+
+legend{
+	    color: white;
+    font-weight: bold;
+	background:#757575;
+}
+
+.infoDivText{
+	color:#baffba;
 	font-weight:bold;
 }
