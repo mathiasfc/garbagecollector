@@ -2,6 +2,7 @@
 var WALL = 0;
 var agenteIniciado = false;
 var larguraGrid = $("#selectGridSize").val();
+var distanciaTotal = Math.pow($("#selectGridSize").val(),2);
 
 class Agente {
     constructor(x, y, bateria, capacidade,distancia) {
@@ -100,6 +101,7 @@ GraphSearch.prototype.initialize = function() {
             var isWall = PreencheParede(x, y, this.opts.gridSize);
             if (isWall === 1) {
                 $cell.addClass(css.wall);
+				distanciaTotal = distanciaTotal - 1;
             } else {
 
                 $cell.addClass('weight1');
@@ -112,6 +114,7 @@ GraphSearch.prototype.initialize = function() {
     var totalCelulasLivresAmbiente = Math.pow(this.opts.gridSize, 2) - this.opts.nrLixeiras - this.opts.nrPontosRecarga;
     ColocaSujeira(totalCelulasLivresAmbiente);
 
+	$("#infoSqmsRestantes").text(distanciaTotal);
     console.log("matriz iniciada");
 
 };
@@ -164,6 +167,7 @@ ColocaLixeiras = function(nrLixeiras) {
         }
     }
 	$("#infoLixeiras").text(i);
+	distanciaTotal = distanciaTotal - i;
 }
 
 ColocaPontosRecarga = function(nrPontosRecarga) {
@@ -179,6 +183,7 @@ ColocaPontosRecarga = function(nrPontosRecarga) {
             i++;
         }
     }
+	distanciaTotal = distanciaTotal - i;
 	$("#infoRecarga").text(i);
 }
 
@@ -213,64 +218,235 @@ Agente.prototype.initialize = function() {
 	AtualizaInformacoesAgente(this);
     var x = 0;
     var y = 0;
-	var swap = false;
-    var timerId = 0;
-	
 	var agente = this;
+	
+	var lastDir = "right";
+	var tryTo = "";
+	
+	var right = true;
+	var up = false;
+	var down = false;
+	var left = false;
+    var timerId = 0;
+
     timerId = setInterval(function(){
-        $("#search_grid .row .grid_item").removeClass("agente");
+        LimpaMarcaAgente();
         var cell = $("#search_grid .row .grid_item[x=" + agente.x + "][y=" + agente.y + "]");
-        //Verifica Colisões
+        cell.addClass("agente");
+		//######Limpa Sujeira######
 		if(cell.hasClass("sujeira")){
 			cell.removeClass("sujeira");
 			cell.html("");
 			agente.capacidade--;
-		}else if(cell.hasClass("pontoRecarga")){
-			
-		}else if(cell.hasClass("lixeira")){
-			
-		}else if(cell.hasClass("wall")){
-			
 		}
-		
-        cell.addClass("agente");
-        agente.x = x;
-        agente.y = y;
-		
-		if(swap){
-			if(y == 0){
-				x++;;
-				swap = false;
+		//######Move agente[[Por padrão começa para direita]]######
+		if(right){
+			lastDir = "right";
+			if(tryTo == "down"){
+				if(CelulaLivre(agente.x+1,agente.y)){
+					right = false;
+					down = true;
+					agente.x++;
+				}
+			}else if(tryTo == "up"){
+				if(CelulaLivre(agente.x-1,agente.y)){
+					right = false;
+					up = true;
+					agente.x--;
+				}
 			}
-			y--;
 			
-		}else{
-			y++;	
+			if(right){
+				//verifica se tem um sqm válido
+				if(ExisteCelula(agente.x,agente.y+1)){
+					//avança direita se estiver livre
+					if(CelulaLivre(agente.x,agente.y+1)){
+						agente.y++;
+					}
+					else{
+						right = false;
+						//verifica cima
+						if(CelulaLivre(agente.x-1,agente.y)){
+							up = true;
+						}
+						//verifica baixo
+						else if(CelulaLivre(agente.x+1,agente.y)){
+							down = true;
+						}
+					}
+				}else{
+					agente.x++;
+					right = false;
+					left = true;
+				}
+			}
 		}
-        
-        if (y == larguraGrid) {
-            x++;
-            swap = true;
-        }
+		
+		else if(left){
+			lastDir = "left";
+			if(tryTo == "down"){
+				if(CelulaLivre(agente.x+1,agente.y)){
+					left = false;
+					down = true;
+					agente.x++;
+				}
+			}else if(tryTo == "up"){
+				if(CelulaLivre(agente.x-1,agente.y)){
+					left = false;
+					up = true;
+					agente.x--;
+				}
+			}
+			
+			if(left){
+				if(ExisteCelula(agente.x,agente.y-1)){
+					if(CelulaLivre(agente.x,agente.y-1)){
+						agente.y--;
+					}else{
+						left = false;
+						//verifica cima
+						if(CelulaLivre(agente.x-1,agente.y)){
+							up = true;
+						}
+						//verifica baixo
+						else if(CelulaLivre(agente.x+1,agente.y)){
+							down = true;
+						}
+						
+					}
+				}else{
+					agente.x++;
+					right = true;
+					left = false;
+				}
+			}
+		}
+		
+		else if(up){
+			tryTo = "down";
+			if(lastDir == "left"){
+				if(CelulaLivre(agente.x,agente.y-1)){
+					up = false;
+					left = true;
+					agente.y--;
+				}
+			}else if(lastDir == "right"){
+				if(CelulaLivre(agente.x,agente.y+1)){
+					up = false;
+					right = true;
+					agente.y++;
+				}
+			}
+			if(up){
+				if(ExisteCelula(agente.x-1,agente.y)){
+					if(CelulaLivre(agente.x-1,agente.y)){
+						agente.x--;
+					}else{
+						up = false;
+						//verifica esquerda
+						if(CelulaLivre(agente.x,agente.y-1)){
+							left = true;
+						}
+						//verifica direita
+						else if(CelulaLivre(agente.x,agente.y+1)){
+							right = true;
+						}
+						
+					}
+				}else{
+					agente.x++;
+					up = false;
+					down = true;
+				}
+			}
+			
+		}
 
+		else if(down){
+			tryTo = "up";
+			if(lastDir == "left"){
+				if(CelulaLivre(agente.x,agente.y-1)){
+					down = false;
+					left = true;
+					agente.y--;
+				}
+			}else if(lastDir == "right"){
+				if(CelulaLivre(agente.x,agente.y+1)){
+					down = false;
+					right = true;
+					agente.y++;
+				}
+			}
+			
+			if(down){
+				if(ExisteCelula(agente.x+1,agente.y)){
+					if(CelulaLivre(agente.x+1,agente.y)){
+						agente.x++;
+					}else{
+						down = false;
+						//verifica esquerda
+						if(CelulaLivre(agente.x,agente.y-1)){
+							left = true;
+						}
+						//verifica direita
+						else if(CelulaLivre(agente.x,agente.y+1)){
+							right = true;
+						}
+					}
+				}else{
+					agente.x--;
+					up = true;
+					down = false;
+				}
+			}
+		}
+		
+		//--------------
+		
+		
+		//######Possiveis condições de parada######
+        /*if (agente.y == larguraGrid) {
+            agente.x++;
+            left = true;
+        }
         if (x == larguraGrid) {
             stopInterval();
-        }
-		
+		}*/
+        
+		//######Atualiza informações agente######
 		agente.bateria--;
 		agente.distancia++;
 		AtualizaInformacoesAgente(agente);
+		//------------------------------------
     }, 100);
-
 
     var stopInterval = function() {
         clearInterval(timerId);
     };
 };
 
+ProcuraCelulaLivre = function(x,y){
+	
+}
+
+CelulaLivre = function(x,y){
+	var bNaoTemParede = !$("#search_grid .row .grid_item[x=" + x + "][y=" + y + "]").hasClass("wall");
+	var bNaoTemLixeira = !$("#search_grid .row .grid_item[x=" + x + "][y=" + y + "]").hasClass("lixeira");
+	var bNaoTemRecarga = !$("#search_grid .row .grid_item[x=" + x + "][y=" + y + "]").hasClass("pontoRecarga");
+	return bNaoTemParede && bNaoTemLixeira && bNaoTemRecarga;
+	
+}
 
 AtualizaInformacoesAgente = function(agente){
 		$("#infoBateria").text(agente.bateria);
 		$("#infoCapacidade").text(agente.capacidade);
 		$("#infoSqms").text(agente.distancia);
+}
+
+LimpaMarcaAgente = function(){
+	$("#search_grid .row .grid_item").removeClass("agente");
+}
+
+ExisteCelula = function(x,y){
+	return ((x >= 0 && x <= larguraGrid) && (y >= 0 && y<= larguraGrid));
 }
