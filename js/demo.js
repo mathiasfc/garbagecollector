@@ -222,6 +222,7 @@ Agente.prototype.initialize = function() {
 	
 	var lastDir = "right";
 	var tryTo = "";
+	var trying = false;
 	
 	var right = true;
 	var up = false;
@@ -242,14 +243,16 @@ Agente.prototype.initialize = function() {
 		//######Move agente[[Por padrão começa para direita]]######
 		if(right){
 			lastDir = "right";
-			if(tryTo == "down"){
+			if(tryTo == "down" && trying){
 				if(CelulaLivre(agente.x+1,agente.y)){
+					trying = false;
 					right = false;
 					down = true;
 					agente.x++;
 				}
-			}else if(tryTo == "up"){
+			}else if(tryTo == "up" && trying){
 				if(CelulaLivre(agente.x-1,agente.y)){
+					trying = false;
 					right = false;
 					up = true;
 					agente.x--;
@@ -268,10 +271,12 @@ Agente.prototype.initialize = function() {
 						//verifica cima
 						if(CelulaLivre(agente.x-1,agente.y)){
 							up = true;
+							trying = true;
 						}
 						//verifica baixo
 						else if(CelulaLivre(agente.x+1,agente.y)){
 							down = true;
+							trying = true;
 						}
 					}
 				}else{
@@ -284,14 +289,16 @@ Agente.prototype.initialize = function() {
 		
 		else if(left){
 			lastDir = "left";
-			if(tryTo == "down"){
+			if(tryTo == "down" && trying){
 				if(CelulaLivre(agente.x+1,agente.y)){
+					trying = false;
 					left = false;
 					down = true;
 					agente.x++;
 				}
-			}else if(tryTo == "up"){
+			}else if(tryTo == "up" && trying){
 				if(CelulaLivre(agente.x-1,agente.y)){
+					trying = false;
 					left = false;
 					up = true;
 					agente.x--;
@@ -304,13 +311,15 @@ Agente.prototype.initialize = function() {
 						agente.y--;
 					}else{
 						left = false;
-						//verifica cima
-						if(CelulaLivre(agente.x-1,agente.y)){
-							up = true;
-						}
+						
 						//verifica baixo
-						else if(CelulaLivre(agente.x+1,agente.y)){
+						if(CelulaLivre(agente.x+1,agente.y)){
 							down = true;
+							trying = true;
+						}//verifica cima
+						else if(CelulaLivre(agente.x-1,agente.y)){
+							up = true;
+							trying = true;
 						}
 						
 					}
@@ -346,10 +355,17 @@ Agente.prototype.initialize = function() {
 						//verifica esquerda
 						if(CelulaLivre(agente.x,agente.y-1)){
 							left = true;
+							agente.y--;
 						}
 						//verifica direita
 						else if(CelulaLivre(agente.x,agente.y+1)){
 							right = true;
+							agente.y++;
+						}
+						//verifica baixo
+						else if(CelulaLivre(agente.x+1,agente.y)){
+							down = true;
+							agente.x++;
 						}
 						
 					}
@@ -387,10 +403,17 @@ Agente.prototype.initialize = function() {
 						//verifica esquerda
 						if(CelulaLivre(agente.x,agente.y-1)){
 							left = true;
+							agente.y--;
 						}
 						//verifica direita
 						else if(CelulaLivre(agente.x,agente.y+1)){
 							right = true;
+							agente.y++;
+						}
+						//verifica cima
+						else if(CelulaLivre(agente.x-1,agente.y)){
+							up = true;
+							agente.x--;
 						}
 					}
 				}else{
@@ -415,6 +438,9 @@ Agente.prototype.initialize = function() {
         
 		//######Atualiza informações agente######
 		agente.bateria--;
+		if(agente.bateria == 0){
+			stopInterval();
+		}
 		agente.distancia++;
 		AtualizaInformacoesAgente(agente);
 		//------------------------------------
@@ -438,7 +464,11 @@ CelulaLivre = function(x,y){
 }
 
 AtualizaInformacoesAgente = function(agente){
+		if(agente.bateria < 0){
+			$("#infoBateria").text("Esgotada.");
+		}else{
 		$("#infoBateria").text(agente.bateria);
+		}
 		$("#infoCapacidade").text(agente.capacidade);
 		$("#infoSqms").text(agente.distancia);
 }
@@ -448,5 +478,5 @@ LimpaMarcaAgente = function(){
 }
 
 ExisteCelula = function(x,y){
-	return ((x >= 0 && x <= larguraGrid) && (y >= 0 && y<= larguraGrid));
+	return ((x >= 0 && x < larguraGrid) && (y >= 0 && y< larguraGrid));
 }
