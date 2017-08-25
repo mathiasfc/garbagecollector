@@ -1,0 +1,137 @@
+html, body {
+	height:100%;
+	margin:0;
+}
+body {
+    font-family: "Palatino Linotype", "Book Antiqua", Palatino, serif;
+}
+
+h2 {
+    font-weight:normal;
+}
+.links {
+    clear:both;
+    background: rgba(0, 0, 0, .1);
+    padding: 4px;
+    padding-left: 20px;
+	padding-bottom:5px;
+}
+.links a {
+    padding: 3px;
+    color: #339;
+}
+.buttons { 
+    float:right;
+    position:relative;
+    right: 10px;
+    top: 10px;
+}
+.buttons a {
+    text-decoration: none;
+}
+
+#content {
+	margin:0 auto;
+	width:98%;
+}
+
+#controls {
+	text-align:center;
+	margin-bottom: 25px;
+	padding:5px;
+
+}
+#search_grid  {
+	width:400px;
+	height:400px;
+	position: relative;
+}
+
+#main{
+	margin: auto;
+	width: 38%;
+}
+
+.grid_item {
+	display: block;
+	border: 1px solid #bbb;
+	float: left;
+	line-height:12px;
+	font-size:10px;
+}
+.grid_item.wall {
+  background-color: #000000;
+}
+.grid_item.weight1 {
+  background-color: #ffffff;
+}
+.grid_item.start {
+	background-color: #FF703F;
+}
+.grid_item.active {
+	background-color: #FF703F;
+}
+.grid_item.finish {
+
+}
+
+.lixeira{
+	text-align: center;
+	color:red;
+	font-size:20px;
+	background-color:#ffd0d0 !important;
+}
+
+.pontoRecarga{
+	text-align: center;
+	color:green;
+	font-size:20px;
+	background-color:#d6f2d6 !important;
+}
+
+.sujeira{
+	text-align: center;
+	color:grey;
+	font-size:20px;
+	background-color:#e8e8e8 !important;
+}
+
+.agente{
+	text-align: center;
+	color:grey;
+	font-size:20px;
+	background-color:red !important;
+	color: blue;
+	font-weight:bold;
+}
+
+#infoGrid{
+	position: absolute;
+    left: 7%;
+    width: 300px;
+	
+}
+
+#infoAgente{
+	position: absolute;
+	top:220px;
+    left: 7%;
+    width: 300px;
+}
+
+
+fieldset{
+	color:white;
+	background: #1d1d1d;
+}
+
+legend{
+	    color: white;
+    font-weight: bold;
+	background:#757575;
+}
+
+.infoDivText{
+	color:#baffba;
+	font-weight:bold;
+}
