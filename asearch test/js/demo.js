@@ -94,20 +94,31 @@ GraphSearch.prototype.animatePath = function(path) {
 
     var removeClass = function(path, i) {
 	    if(i>=path.length) return;
-	    elementFromNode(path[i]).removeClass(css.active);
-	    setTimeout( function() { removeClass(path, i+1) }, timeout*path[i].cost);
+	    elementFromNode(path[i]).removeClass("agente");
+	    setTimeout( function() { removeClass(path, i+1) }, 200);
     }
     var addClass = function(path, i)  {
 	    if(i>=path.length) {  // Finished showing path, now remove
 	    	return removeClass(path, 0);
 	    }
-	    elementFromNode(path[i]).addClass(css.active);
-	    setTimeout( function() { addClass(path, i+1) }, timeout*path[i].cost);
+	    elementFromNode(path[i]).addClass("agente");
+	    setTimeout( function() { addClass(path, i+1) }, 200);
     };
 
     addClass(path, 0)
     this.$graph.find("." + css.start).removeClass(css.start);
     this.$graph.find("." + css.finish).removeClass(css.finish).addClass(css.start);
+	
+	/*var i =0;
+	setInterval(function(){
+		if(i<= path.length){
+			elementFromNode(path[i]).addClass("agente");
+			setTimeout( function() { elementFromNode(path[i]).removeClass("agente"); }, 200);
+			i++;
+		}
+	}, 200);*/
+
+	
 };
 GraphSearch.prototype.initialize = function() {
 
@@ -208,6 +219,7 @@ ColocaLixeiras = function(nrLixeiras) {
         var cell = $("#search_grid .row .grid_item[x=" + randomX + "][y=" + randomY + "]");
         if (!cell.hasClass("wall") && !cell.hasClass("lixeira")) {
             cell.addClass("lixeira");
+			cell.type = 1;
             cell.wrapInner("<span>L</span>");
             i++;
         }
@@ -225,6 +237,7 @@ ColocaPontosRecarga = function(nrPontosRecarga) {
         var cell = $("#search_grid .row .grid_item[x=" + randomX + "][y=" + randomY + "]");
         if (!cell.hasClass("wall") && !cell.hasClass("lixeira") && !cell.hasClass("pontoRecarga")) {
             cell.addClass("pontoRecarga");
+			cell.type = 1;
             cell.wrapInner("<span>R</span>");
             i++;
         }
@@ -499,14 +512,100 @@ Agente.prototype.initialize = function() {
 		x++;
 	}, 100);*/
 	
-	var cellStart = $("#search_grid .row .grid_item[x=0][y=6]");
-	var cellEnd = $("#search_grid .row .grid_item[x=0][y=12]");
-	grid.move(cellStart,cellEnd);
+	var x = 0;
+	var y = 0;
+	var goToLeft = false;
+	var goToRight = true;
+	var limiteDireito = larguraGrid -1;
+	var limiteEsquerdo = 0;
+	timerId = setInterval(function(){
+		currentCell = $("#search_grid .row .grid_item[x="+x+"][y="+y+"]");
+		currentCell.addClass("agente");
+		if(goToRight && y == limiteDireito){
+			if(CelulaLivre((x+1),y)){
+				cellEnd = $("#search_grid .row .grid_item[x="+(x+1)+"][y="+y+"]");
+			    x++;
+			    goToLeft = true;
+			    goToRight = false;
+			}else{
+				cellEnd = ProcuraProximaCelulaLivre(x,y,"limDir");
+			}
+			
+		}else if(goToLeft && y == limiteEsquerdo){
+			if(CelulaLivre((x+1),y)){
+				cellEnd = $("#search_grid .row .grid_item[x="+(x+1)+"][y="+y+"]");
+				x++;
+				goToLeft = false;
+				goToRight = true;
+			}else{
+				cellEnd = ProcuraProximaCelulaLivre(x,y,"limEsq");
+			}
+		}else if(goToRight){
+			if(CelulaLivre(x,(y+1))){
+				cellEnd = $("#search_grid .row .grid_item[x="+x+"][y="+(y+1)+"]");
+				y++;
+			}else{
+				cellEnd = ProcuraProximaCelulaLivre(x,y,"dir");
+			}
+		}else if(goToLeft){
+			if(CelulaLivre(x,(y-1))){
+				cellEnd = $("#search_grid .row .grid_item[x="+x+"][y="+(y-1)+"]");
+				y--;
+			}else{
+				cellEnd = ProcuraProximaCelulaLivre(x,y,"esq");
+			}
+		}
+	
+		grid.move(currentCell,cellEnd);
+		
+	}, 100);
 	
     var stopInterval = function() {
         clearInterval(timerId);
     };
 };
+
+ProcuraProximaCelulaLivre = function(x,y,dir){
+	if(dir == "limDir"){
+		//procura a celula mais proxima na linha de baixo
+		//verifica se não é a ultima linha
+		if(x != larguraGrid){
+			for(var y = y; y>=0;y--){
+				if(CelulaLivre((x+1),y)){
+					return PegaCelula((x+1),y);
+				}
+			}
+		}
+	}else if(dir == "limEsq"){
+		//procura a celula mais proxima na linha de baixo
+		//verifica se não é a ultima linha
+		if(x != larguraGrid){
+			for(var y = y; y<=larguraGrid;y++){
+				if(CelulaLivre((x+1),y)){
+					return PegaCelula((x+1),y);
+				}
+			}
+		}
+	}else if(dir == "dir"){
+		//verifica se tem celula vazia na linha
+		for(var y = y; y<=larguraGrid;y++){
+			if(CelulaLivre(x,(y+1))){
+				return PegaCelula(x,(y+1));
+			}
+		}
+		//se nao tiver desce e mantem a direcao inicial
+		
+	}else if(dir == "esq"){
+		//verifica se tem celula vazia na linha
+		for(var y = y; y>=0;y--){
+			if(CelulaLivre(x,(y-1))){
+				return PegaCelula(x,(y-1));
+			}
+		}
+		//se nao tiver desce e mantem a direcao inicial
+	}
+	
+}
 
 var grid;
 
@@ -520,7 +619,7 @@ GraphSearch.prototype.move = function($start,$end) {
    	}
 
    	this.$cells.removeClass("agente");
-   	$end.addClass("agente");
+   	//$end.addClass("agente");
    	//var $start = this.$cells.filter(start);
    	var start = this.nodeFromElement($start);
 
@@ -535,7 +634,7 @@ GraphSearch.prototype.move = function($start,$end) {
 	else {
 	    $("#message").text("search took " + (fTime-sTime) + "ms.");
     	if(this.opts.debug) {
-	    	this.drawDebugInfo(this.opts.debug);
+	    	//this.drawDebugInfo(this.opts.debug);
 	    }
 	    this.animatePath(path);
 	}
@@ -550,7 +649,10 @@ CelulaLivre = function(x,y){
 	var bNaoTemLixeira = !$("#search_grid .row .grid_item[x=" + x + "][y=" + y + "]").hasClass("lixeira");
 	var bNaoTemRecarga = !$("#search_grid .row .grid_item[x=" + x + "][y=" + y + "]").hasClass("pontoRecarga");
 	return bNaoTemParede && bNaoTemLixeira && bNaoTemRecarga;
-	
+}
+
+PegaCelula = function(x,y){
+	return $("#search_grid .row .grid_item[x=" + x + "][y=" + y + "]");
 }
 
 AtualizaInformacoesAgente = function(agente){

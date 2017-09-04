@@ -57,7 +57,7 @@ var astar = {
             for(var i=0, il = neighbors.length; i < il; i++) {
                 var neighbor = neighbors[i];
 
-                if(neighbor.closed || neighbor.isWall()) {
+                if(neighbor.closed || neighbor.isWall() || $("#search_grid .row .grid_item[x=" + neighbor.x + "][y=" + neighbor.y + "]").hasClass("pontoRecarga") || $("#search_grid .row .grid_item[x=" + neighbor.x + "][y=" + neighbor.y + "]").hasClass("lixeira")) {
                     // Not a valid node to process, skip to next neighbor.
                     continue;
                 }

@@ -69,7 +69,7 @@ h2 {
 	background-color: #FF703F;
 }
 .grid_item.active {
-	background-color: #FF703F;
+	background-color: blue;
 }
 .grid_item.finish {
 
