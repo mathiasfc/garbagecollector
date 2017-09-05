@@ -317,6 +317,9 @@ Agente.prototype.initialize = function() {
 	var goToRight = true;
 	var limiteDireito = larguraGrid -1;
 	var limiteEsquerdo = 0;
+	var lastPos = 0;
+	var path = [];
+	var completedPath = true;
 	timerId = setInterval(function(){
 
 		currentCell = $("#search_grid .row .grid_item[x="+x+"][y="+y+"]");
@@ -358,17 +361,39 @@ Agente.prototype.initialize = function() {
 			}
 		}
 	
-		var path = grid.move(currentCell,cellEnd);
+		if(completedPath){
+			path = grid.move(currentCell,cellEnd);
+		}
 		
-		for (var i =0;i<path.length;i++){
+		
+		if(lastPos == path.length -1){
+			completedPath = true;
+		}
+		
+		
+		if(path.length > 1 && lastPos < path.length && lastPos != path.length-1){
+			x = path[lastPos].x;
+			y = path[lastPos].y;
+			lastPos++;
+			completedPath = false;
+		}else if(completedPath){
+			x = path[lastPos].x;
+			y = path[lastPos].y;
+			lastPos = 0;
+			
+		}
+		grid.$cells.removeClass("agente");
+		//$("#search_grid .agente").removeClass("agente");
+	    $("#search_grid .row .grid_item[x=" + x + "][y=" + y + "]").addClass("agente");
+		/*for (var i =0;i<path.length;i++){
 			
 			fazAnimatcao(i,path);
 			x = path[i].x;
 			y = path[i].y;
-		}
+		}*/
 		
-		grid.$cells.removeClass("agente");
-	}, 200);
+		
+	}, 1);
 	
     var stopInterval = function() {
         clearInterval(timerId);
