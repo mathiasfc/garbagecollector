@@ -24,8 +24,8 @@ $(function() {
 
     var opts = {
         gridSize: $selectGridSize.val(),
-        nrLixeiras: 4,
-        nrPontosRecarga: 4
+        nrLixeiras: 10,
+        nrPontosRecarga: 10
     };
 
     var grid = new GraphSearch($grid, opts, astar.search);
@@ -334,6 +334,8 @@ Agente.prototype.initialize = function() {
 			    goToRight = false;
 			}else{
 				cellEnd = ProcuraProximaCelulaLivre(x,y,"limDir");
+				goToLeft = true;
+			    goToRight = false;
 			}
 			
 		}else if(goToLeft && y == limiteEsquerdo){
@@ -344,6 +346,8 @@ Agente.prototype.initialize = function() {
 				goToRight = true;
 			}else{
 				cellEnd = ProcuraProximaCelulaLivre(x,y,"limEsq");
+				goToLeft = false;
+				goToRight = true;
 			}
 		}else if(goToRight){
 			if(CelulaLivre(x,(y+1))){
@@ -414,6 +418,7 @@ function fazAnimatcao(i,path) {
 }
 
 ProcuraProximaCelulaLivre = function(x,y,dir){
+	//var larguraGrid = parseInt(larguraGrid);
 	if(dir == "limDir"){
 		//procura a celula mais proxima na linha de baixo
 		//verifica se não é a ultima linha
@@ -436,21 +441,31 @@ ProcuraProximaCelulaLivre = function(x,y,dir){
 		}
 	}else if(dir == "dir"){
 		//verifica se tem celula vazia na linha
-		for(var y = y; y<=larguraGrid;y++){
+		for(var y = y; y<larguraGrid;y++){
 			if(CelulaLivre(x,(y+1))){
 				return PegaCelula(x,(y+1));
 			}
 		}
 		//se nao tiver desce e mantem a direcao inicial
+		for(var x = x; x<=larguraGrid-1;x++){
+			if(CelulaLivre((x+1),y)){
+				return PegaCelula((x+1),y);
+			}
+		}
 		
 	}else if(dir == "esq"){
 		//verifica se tem celula vazia na linha
-		for(var y = y; y>=0;y--){
+		for(var y = y; y>0;y--){
 			if(CelulaLivre(x,(y-1))){
 				return PegaCelula(x,(y-1));
 			}
 		}
 		//se nao tiver desce e mantem a direcao inicial
+		for(var x = x; x<=larguraGrid-1;x++){
+			if(CelulaLivre((x+1),y)){
+				return PegaCelula((x+1),y);
+			}
+		}
 	}
 	
 }
