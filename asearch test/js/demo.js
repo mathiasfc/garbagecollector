@@ -3,6 +3,8 @@ var WALL = 0;
 var agenteIniciado = false;
 var larguraGrid = $("#selectGridSize").val();
 var distanciaTotal = Math.pow($("#selectGridSize").val(),2);
+var x = 0;
+var y = 0;
 
 class Agente {
     constructor(x, y, bateria, capacidade,distancia) {
@@ -86,40 +88,22 @@ GraphSearch.prototype.animateNoPath = function() {
 };
 
 GraphSearch.prototype.animatePath = function(path) {
-	var grid = this.grid;
+	/*var grid = this.grid;
 	var timeout = 1000 / grid.length;
 	var elementFromNode = function(node) {
 		return grid[node.x][node.y];
 	};
 
-    var removeClass = function(path, i) {
-	    if(i>=path.length) return;
-	    elementFromNode(path[i]).removeClass("agente");
-	    setTimeout( function() { removeClass(path, i+1) }, 200);
-    }
-    var addClass = function(path, i)  {
-	    if(i>=path.length) {  // Finished showing path, now remove
-	    	return removeClass(path, 0);
-	    }
-	    elementFromNode(path[i]).addClass("agente");
-	    setTimeout( function() { addClass(path, i+1) }, 200);
-    };
+	for (var i =0;i<path.length;i++){
+		
+		fazAnimatcao(i,path);
 
-    addClass(path, 0)
-    this.$graph.find("." + css.start).removeClass(css.start);
-    this.$graph.find("." + css.finish).removeClass(css.finish).addClass(css.start);
-	
-	/*var i =0;
-	setInterval(function(){
-		if(i<= path.length){
-			elementFromNode(path[i]).addClass("agente");
-			setTimeout( function() { elementFromNode(path[i]).removeClass("agente"); }, 200);
-			i++;
-		}
-	}, 200);*/
-
+	}*/
 	
 };
+
+
+
 GraphSearch.prototype.initialize = function() {
 
     this.grid = [];
@@ -275,8 +259,7 @@ function getRandomInt(min, max) {
 Agente.prototype.initialize = function() {
     console.log("agente iniciado");
 	AtualizaInformacoesAgente(this);
-    var x = 0;
-    var y = 0;
+    
 	var agente = this;
 	
 	var lastDir = "right";
@@ -298,189 +281,6 @@ Agente.prototype.initialize = function() {
 			cell.removeClass("sujeira");
 			cell.html("");
 			agente.capacidade--;
-		}
-		//######Move agente[[Por padrão começa para direita]]######
-		if(right){
-			lastDir = "right";
-			if(tryTo == "down" && trying){
-				if(CelulaLivre(agente.x+1,agente.y)){
-					trying = false;
-					right = false;
-					down = true;
-					agente.x++;
-				}
-			}else if(tryTo == "up" && trying){
-				if(CelulaLivre(agente.x-1,agente.y)){
-					trying = false;
-					right = false;
-					up = true;
-					agente.x--;
-				}
-			}
-			
-			if(right){
-				//verifica se tem um sqm válido
-				if(ExisteCelula(agente.x,agente.y+1)){
-					//avança direita se estiver livre
-					if(CelulaLivre(agente.x,agente.y+1)){
-						agente.y++;
-					}
-					else{
-						right = false;
-						//verifica cima
-						if(CelulaLivre(agente.x-1,agente.y)){
-							up = true;
-							trying = true;
-						}
-						//verifica baixo
-						else if(CelulaLivre(agente.x+1,agente.y)){
-							down = true;
-							trying = true;
-						}
-					}
-				}else{
-					agente.x++;
-					right = false;
-					left = true;
-				}
-			}
-		}
-		
-		else if(left){
-			lastDir = "left";
-			if(tryTo == "down" && trying){
-				if(CelulaLivre(agente.x+1,agente.y)){
-					trying = false;
-					left = false;
-					down = true;
-					agente.x++;
-				}
-			}else if(tryTo == "up" && trying){
-				if(CelulaLivre(agente.x-1,agente.y)){
-					trying = false;
-					left = false;
-					up = true;
-					agente.x--;
-				}
-			}
-			
-			if(left){
-				if(ExisteCelula(agente.x,agente.y-1)){
-					if(CelulaLivre(agente.x,agente.y-1)){
-						agente.y--;
-					}else{
-						left = false;
-						
-						//verifica baixo
-						if(CelulaLivre(agente.x+1,agente.y)){
-							down = true;
-							trying = true;
-						}//verifica cima
-						else if(CelulaLivre(agente.x-1,agente.y)){
-							up = true;
-							trying = true;
-						}
-						
-					}
-				}else{
-					agente.x++;
-					right = true;
-					left = false;
-				}
-			}
-		}
-		
-		else if(up){
-			tryTo = "down";
-			if(lastDir == "left"){
-				if(CelulaLivre(agente.x,agente.y-1)){
-					up = false;
-					left = true;
-					agente.y--;
-				}
-			}else if(lastDir == "right"){
-				if(CelulaLivre(agente.x,agente.y+1)){
-					up = false;
-					right = true;
-					agente.y++;
-				}
-			}
-			if(up){
-				if(ExisteCelula(agente.x-1,agente.y)){
-					if(CelulaLivre(agente.x-1,agente.y)){
-						agente.x--;
-					}else{
-						up = false;
-						//verifica esquerda
-						if(CelulaLivre(agente.x,agente.y-1)){
-							left = true;
-							agente.y--;
-						}
-						//verifica direita
-						else if(CelulaLivre(agente.x,agente.y+1)){
-							right = true;
-							agente.y++;
-						}
-						//verifica baixo
-						else if(CelulaLivre(agente.x+1,agente.y)){
-							down = true;
-							agente.x++;
-						}
-						
-					}
-				}else{
-					agente.x++;
-					up = false;
-					down = true;
-				}
-			}
-			
-		}
-
-		else if(down){
-			tryTo = "up";
-			if(lastDir == "left"){
-				if(CelulaLivre(agente.x,agente.y-1)){
-					down = false;
-					left = true;
-					agente.y--;
-				}
-			}else if(lastDir == "right"){
-				if(CelulaLivre(agente.x,agente.y+1)){
-					down = false;
-					right = true;
-					agente.y++;
-				}
-			}
-			
-			if(down){
-				if(ExisteCelula(agente.x+1,agente.y)){
-					if(CelulaLivre(agente.x+1,agente.y)){
-						agente.x++;
-					}else{
-						down = false;
-						//verifica esquerda
-						if(CelulaLivre(agente.x,agente.y-1)){
-							left = true;
-							agente.y--;
-						}
-						//verifica direita
-						else if(CelulaLivre(agente.x,agente.y+1)){
-							right = true;
-							agente.y++;
-						}
-						//verifica cima
-						else if(CelulaLivre(agente.x-1,agente.y)){
-							up = true;
-							agente.x--;
-						}
-					}
-				}else{
-					agente.x--;
-					up = true;
-					down = false;
-				}
-			}
 		}
 		
 		//--------------
@@ -512,15 +312,17 @@ Agente.prototype.initialize = function() {
 		x++;
 	}, 100);*/
 	
-	var x = 0;
-	var y = 0;
+	
 	var goToLeft = false;
 	var goToRight = true;
 	var limiteDireito = larguraGrid -1;
 	var limiteEsquerdo = 0;
 	timerId = setInterval(function(){
+
 		currentCell = $("#search_grid .row .grid_item[x="+x+"][y="+y+"]");
 		currentCell.addClass("agente");
+		
+		
 		if(goToRight && y == limiteDireito){
 			if(CelulaLivre((x+1),y)){
 				cellEnd = $("#search_grid .row .grid_item[x="+(x+1)+"][y="+y+"]");
@@ -556,14 +358,35 @@ Agente.prototype.initialize = function() {
 			}
 		}
 	
-		grid.move(currentCell,cellEnd);
+		var path = grid.move(currentCell,cellEnd);
 		
-	}, 100);
+		for (var i =0;i<path.length;i++){
+			
+			fazAnimatcao(i,path);
+			x = path[i].x;
+			y = path[i].y;
+		}
+		
+		grid.$cells.removeClass("agente");
+	}, 200);
 	
     var stopInterval = function() {
         clearInterval(timerId);
     };
 };
+
+function fazAnimatcao(i,path) {
+  var timeOut = 200;
+  var increase = 0;
+  if(path.length > 1){
+	  increase = 200 * i;
+  }
+  setTimeout(function(){
+	  $("#search_grid .agente").removeClass("agente");
+	  $("#search_grid .row .grid_item[x=" + path[i].x + "][y=" + path[i].y + "]").addClass("agente");
+	  
+	}, timeOut + increase);
+}
 
 ProcuraProximaCelulaLivre = function(x,y,dir){
 	if(dir == "limDir"){
@@ -614,29 +437,21 @@ GraphSearch.prototype.move = function($start,$end) {
     var end = this.nodeFromElement($end);
 
    	if($end.hasClass(css.wall) || $end.hasClass(css.start)) {
-   		log("clicked on wall or start...", $end);
    		return;
    	}
 
-   	this.$cells.removeClass("agente");
+   	//this.$cells.removeClass("agente");
    	//$end.addClass("agente");
    	//var $start = this.$cells.filter(start);
    	var start = this.nodeFromElement($start);
-
-	var sTime = new Date();
     var path = this.search(this.graph.nodes, start, end, true);
-	var fTime = new Date();
 
 	if(!path || path.length == 0)	{
-	    $("#message").text("couldn't find a path ("+(fTime-sTime)+"ms)");
 	    this.animateNoPath();
 	}
 	else {
-	    $("#message").text("search took " + (fTime-sTime) + "ms.");
-    	if(this.opts.debug) {
-	    	//this.drawDebugInfo(this.opts.debug);
-	    }
-	    this.animatePath(path);
+	    //this.animatePath(path);
+		return path;
 	}
 };
 
