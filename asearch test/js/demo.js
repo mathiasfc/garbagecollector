@@ -1,15 +1,5 @@
 //Trabalho IA T1
-var WALL = 0;
-var agenteIniciado = false;
-var larguraGrid = $("#selectGridSize").val();
-var distanciaTotal = Math.pow($("#selectGridSize").val(), 2);
-var x = 0;
-var y = 0;
-var posLixeiras = [];
-var posRecargas = [];
-var percorreMesmaLinha = false;
-var logNumber = 1;
-var velocidadeAgente = 100;
+var velocidadeAgente = 40;
 
 class Agente {
     constructor(x, y, bateria, capacidade, distancia) {
@@ -38,6 +28,7 @@ $(function() {
         $("#logWindowInner").empty();
         ResetaVariaveisGlobais();
         IniciaGrid();
+		
     });
 });
 
@@ -237,6 +228,7 @@ ColocaSujeira = function(totalCelulasLivres) {
         }
     }
     $("#infoSujeiras").text(i);
+	sujeirasRestantes = i;
 }
 
 function getRandomInt(min, max) {
@@ -248,7 +240,6 @@ Agente.prototype.initialize = function() {
     AtualizaInformacoesAgente(this);
 
     var agente = this;
-    var timerId = 0;
     var goToLeft = false;
     var goToRight = true;
     var limiteDireito = larguraGrid - 1;
@@ -268,6 +259,7 @@ Agente.prototype.initialize = function() {
             currentCell.removeClass("sujeira");
             currentCell.html("");
             agente.capacidade--;
+			$("#infoSujeiras").text(sujeirasRestantes--);
             if (agente.capacidade == 0) {
                 Log("Capacidade máxima atingida.");
             }
@@ -279,7 +271,7 @@ Agente.prototype.initialize = function() {
         AtualizaInformacoesAgente(agente);
         if (agente.bateria == 0) {
             Log("Agente sem bateria.", false);
-            stopInterval();
+            stopInterval(timerId);
             return false;
         }
 
@@ -292,7 +284,7 @@ Agente.prototype.initialize = function() {
         }
         //Validação p/ garantir que varreu todo o grid
         if ((agente.x == larguraGrid - 1 && agente.y == 0 || agente.x == larguraGrid - 1 && agente.y == larguraGrid - 1) && (jaPassouNaUltimaDaDireita && jaPassouNaUltimaDaEsquerda)) {
-            stopInterval();
+            stopInterval(timerId);
         }
         agente.distancia++;
 
@@ -384,11 +376,14 @@ Agente.prototype.initialize = function() {
 
     }, velocidadeAgente);
 
-    var stopInterval = function() {
-        clearInterval(timerId);
-    };
+    
 };
 
+
+stopInterval = function(timerId) {
+        clearInterval(timerId);
+};
+	
 VerificaBateriaRestante = function(agente) {
     var valorMinimo = 0;
     var bateriaRestante = agente.bateria;
@@ -527,8 +522,22 @@ Log = function(text, green) {
     logNumber++;
 }
 
+var WALL = 0;
+var agenteIniciado = false;
+var larguraGrid = $("#selectGridSize").val();
+var distanciaTotal = Math.pow($("#selectGridSize").val(), 2);
+var x = 0;
+var y = 0;
+var timerId = 0;
+var posLixeiras = [];
+var posRecargas = [];
+var percorreMesmaLinha = false;
+var logNumber = 1;
+var sujeirasRestantes = 0;
+
 ResetaVariaveisGlobais = function() {
     agenteIniciado = false;
+	stopInterval(timerId);
     larguraGrid = $("#selectGridSize").val();
     distanciaTotal = Math.pow($("#selectGridSize").val(), 2);
     x = 0;
@@ -539,6 +548,4 @@ ResetaVariaveisGlobais = function() {
     $("#infoBateria").text("Não iniciado.");
     $("#infoCapacidade").text("Não iniciado.");
     $("#infoSqms").text("Não iniciado.");
-
-
 }
