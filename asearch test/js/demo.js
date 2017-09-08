@@ -1,5 +1,5 @@
 //Trabalho IA T1
-var velocidadeAgente = 40;
+var velocidadeAgente = 150;
 
 class Agente {
     constructor(x, y, bateria, capacidade, distancia) {
@@ -45,7 +45,20 @@ IniciaGrid = function() {
     };
 
     var grid = new GraphSearch($grid, opts, astar.search);
+	
+	//CalculaRecargaParaTodosPontos();
+	if($("#ckPosicoes").is(":checked")){
+		$("#cover").show();
+		clearInterval(processor);
+		BuscaPosicaoParaCadaNodo();
+	}else{
+		$("#btnInit").prop('disabled',false);
+		clearInterval(processor);
+		$("#cover").hide();
+	}
+	
 }
+
 
 var css = {
     start: "start",
@@ -66,18 +79,6 @@ function GraphSearch($graph, options, implementation) {
 }
 GraphSearch.prototype.setOption = function(opt) {
     this.opts = $.extend(this.opts, opt);
-};
-
-GraphSearch.prototype.animateNoPath = function() {
-    //var $graph = this.$graph;
-    //var jiggle = function(lim, i) {
-    //    if(i>=lim) { $graph.css("top", 0).css("left", 0); return;  }
-    //    if(!i) i=0;
-    //    i++;
-    //    $graph.css("top", Math.random()*6).css("left", Math.random()*6);
-    //    setTimeout( function() { jiggle(lim, i) }, 5 );
-    //};
-    //jiggle(15);
 };
 
 GraphSearch.prototype.initialize = function() {
@@ -249,6 +250,10 @@ Agente.prototype.initialize = function() {
     var completedPath = true;
     var jaPassouNaUltimaDaDireita = false;
     var jaPassouNaUltimaDaEsquerda = false;
+	
+	var bVaiCarregar = false;
+	var infoAgenteAntesDeCarregar = {};
+	
     timerId = setInterval(function() {
         agente.x = x;
         agente.y = y;
@@ -260,9 +265,6 @@ Agente.prototype.initialize = function() {
             currentCell.html("");
             agente.capacidade--;
 			$("#infoSujeiras").text(sujeirasRestantes--);
-            if (agente.capacidade == 0) {
-                Log("Capacidade máxima atingida.");
-            }
         }
         //#######################################
 
@@ -289,13 +291,33 @@ Agente.prototype.initialize = function() {
         agente.distancia++;
 
         //#######################################
-
-        /*if(VerificaBateriaRestante(agente)){
-        	
+		//Verifica se o agente tem que ir recarregar
+		//AtualizaPontoRecargaMaisProximo(agente);
+        //if(VerificaBateriaRestante(agente)){
+		/*if(posicaoRecargaMaisProxima.dist >= agente.bateria && posicaoRecargaMaisProxima.dist <= agente.bateria + 5){
+        	Log("Agente indo carregar", false);
+			stopInterval(timerId);
+			return false;
         }*/
+		/*if(agente.bateria <= larguraGrid){
+			Log("Agente indo carregar", false);
+			AtualizaPontoRecargaMaisProximo(agente);
+			var x = posicaoRecargaMaisProxima.x;
+			var y = posicaoRecargaMaisProxima.y;
+			stopInterval(timerId);
+			return false;
+		}*/
+		
+		if(agente.bateria <= grid.graph.nodes[agente.x][agente.y].posRecarga + 10){
+			if(!bVaiCarregar){
+				Log("Agente indo carregar");
+				infoAgenteAntesDeCarregar = {x:agente.x,y:agente.y};
+				bVaiCarregar = true;
+			}
+		}
 
         if (agente.capacidade == 0) {
-
+			Log("Capacidade máxima atingida.");
         }
 
         if (goToRight && y == limiteDireito) {
@@ -352,7 +374,20 @@ Agente.prototype.initialize = function() {
         }
 
         if (completedPath) {
-            path = grid.move(currentCell, cellEnd);
+			if(bVaiCarregar){
+				//Se chegou no ponto de recarga, recarrega
+				if(grid.graph.nodes[agente.x][agente.y].cordRecarga.x == agente.x && grid.graph.nodes[agente.x][agente.y].cordRecarga.y == agente.y){
+					Log("RECARREGANDO...",true);
+					bVaiCarregar = false;
+					cellEnd = $("#search_grid .row .grid_item[x=" + infoAgenteAntesDeCarregar.x + "][y=" + infoAgenteAntesDeCarregar.y + "]");
+					agente.bateria = ($("#nrBateria").val()) ? $("#nrBateria").val() : 100;
+				}else{
+					cellEnd = $("#search_grid .row .grid_item[x=" + grid.graph.nodes[agente.x][agente.y].cordRecarga.x + "][y=" + grid.graph.nodes[agente.x][agente.y].cordRecarga.y + "]");
+				}
+				
+			}
+			path = grid.mover(currentCell, cellEnd);
+            
         }
 
         if (lastPos == path.length - 1) {
@@ -383,23 +418,28 @@ Agente.prototype.initialize = function() {
 stopInterval = function(timerId) {
         clearInterval(timerId);
 };
-	
-VerificaBateriaRestante = function(agente) {
-    var valorMinimo = 0;
-    var bateriaRestante = agente.bateria;
-    var posicaoAtual = $("#search_grid .row .grid_item[x=" + agente.x + "][y=" + agente.y + "]");
-    for (var x = 0; i < posRecargas.length; x++) {
-        var possivelPontoDeRecarga = $("#search_grid .row .grid_item[x=" + posRecargas[x].x + "][y=" + posRecargas[x].y + "]");
-        var path = grid.move(posicaoAtual, possivelPontoDeRecarga);
-        //valorMinimo = Math.min(path.len
-    }
 
-
-
+ProcuraCelulaVaziaAoLadoDoPonto = function(x,y){
+	//cima
+	if(ExisteCelula((x-1),y) && CelulaLivre((x-1),y)){
+		return [(x-1),y];
+	}
+	//esq
+	else if(ExisteCelula(x,(y-1)) && CelulaLivre(x,(y-1))){
+		return [x,(y-1)];
+	}
+	//baixo
+	else  if(ExisteCelula((x+1),y) && CelulaLivre((x+1),y)){
+		return [(x+1),y];
+	}
+	//dir
+	else  if(ExisteCelula(x,(y+1)) && CelulaLivre(x,(y+1))){
+		return [x,(y+1)];
+	}
+	//TODO DIAGONAIS
 }
 
 ProcuraProximaCelulaLivre = function(x, y, dir) {
-    //var larguraGrid = parseInt(larguraGrid);
     if (dir == "limDir") {
         //procura a celula mais proxima na linha de baixo
         //verifica se não é a ultima linha
@@ -455,7 +495,7 @@ ProcuraProximaCelulaLivre = function(x, y, dir) {
 
 var grid;
 
-GraphSearch.prototype.move = function($start, $end) {
+GraphSearch.prototype.mover = function($start, $end) {
 
     var end = this.nodeFromElement($end);
 
@@ -463,16 +503,12 @@ GraphSearch.prototype.move = function($start, $end) {
         return;
     }
 
-    //this.$cells.removeClass("agente");
-    //$end.addClass("agente");
-    //var $start = this.$cells.filter(start);
     var start = this.nodeFromElement($start);
     var path = this.search(this.graph.nodes, start, end, true);
 
     if (!path || path.length == 0) {
-        this.animateNoPath();
+        //this.animateNoPath();
     } else {
-        //this.animatePath(path);
         return path;
     }
 };
@@ -529,11 +565,14 @@ var distanciaTotal = Math.pow($("#selectGridSize").val(), 2);
 var x = 0;
 var y = 0;
 var timerId = 0;
+var processor = 0;
 var posLixeiras = [];
 var posRecargas = [];
 var percorreMesmaLinha = false;
 var logNumber = 1;
 var sujeirasRestantes = 0;
+var posicaoRecargaMaisProxima = {};
+
 
 ResetaVariaveisGlobais = function() {
     agenteIniciado = false;
@@ -549,3 +588,101 @@ ResetaVariaveisGlobais = function() {
     $("#infoCapacidade").text("Não iniciado.");
     $("#infoSqms").text("Não iniciado.");
 }
+
+
+AtualizaPontoRecargaMaisProximo = function(agente){
+	var posicaoAtual = $("#search_grid .row .grid_item[x=" + agente.x + "][y=" + agente.y + "]");
+	var valorMinimo = 9999;
+	for (var x = 0; x < posRecargas.length; x++) {
+		var posPonto = ProcuraCelulaVaziaAoLadoDoPonto(posRecargas[x][0],posRecargas[x][1])
+		var possivelPontoDeRecarga = $("#search_grid .row .grid_item[x="+posPonto[0]+"][y="+posPonto[1]+"]");
+        var path = grid.mover(posicaoAtual, possivelPontoDeRecarga);
+		if(path){
+			if(path.length < valorMinimo){
+				valorMinimo = path.length;
+				posicaoRecargaMaisProxima = {x:posRecargas[x].x,y:posRecargas[x].y,dist:valorMinimo}
+			}			
+		}
+    }
+}
+
+function BuscaPosicaoParaCadaNodo()
+{
+  Log("Início da verificação");
+  var i = 0, x = 0, busy = false;
+  $("#btnInit").attr("disabled","disabled");
+  processor = setInterval(function()
+  {
+    if(!busy)
+    {
+      busy = true;
+	  
+	  Log("Verificando posição [" + i.toString() + "," + x.toString()+"]");
+	  
+	  var start = $("#search_grid .row .grid_item[x=" + grid.graph.nodes[i][x].x + "][y=" + grid.graph.nodes[i][x].y + "]");
+      var valorMinimoRec = 9999;
+	  for (var j = 0; j < posRecargas.length; j++) {
+			var posPonto = ProcuraCelulaVaziaAoLadoDoPonto(posRecargas[j][0],posRecargas[j][1])
+			var possivelPontoDeRecarga = $("#search_grid .row .grid_item[x="+posPonto[0]+"][y="+posPonto[1]+"]");
+			var path = grid.mover(start,possivelPontoDeRecarga);
+			if(path){
+				if(path.length < valorMinimoRec){
+					valorMinimoRec = path.length;
+					grid.graph.nodes[i][x].posRecarga = valorMinimoRec;
+					grid.graph.nodes[i][x].cordRecarga = {x:posPonto[0],y:posPonto[1]};
+				}			
+			}else{
+				grid.graph.nodes[i][x].posRecarga = 0;
+				grid.graph.nodes[i][x].cordRecarga = {x:posPonto[0],y:posPonto[1]};
+				break;
+			}
+		}
+		
+	  var valorMinimoLix = 9999;
+	  for (var j = 0; j < posLixeiras.length; j++) {
+			var posPonto = ProcuraCelulaVaziaAoLadoDoPonto(posLixeiras[j][0],posLixeiras[j][1])
+			var possivelLixeira = $("#search_grid .row .grid_item[x="+posPonto[0]+"][y="+posPonto[1]+"]");
+			var path = grid.mover(start,possivelLixeira);
+			if(path){
+				if(path.length < valorMinimoLix){
+					valorMinimoLix = path.length;
+					grid.graph.nodes[i][x].posLixeira = valorMinimoLix;
+					grid.graph.nodes[i][x].cordLixeira = {x:posPonto[0],y:posPonto[1]};
+				}			
+			}else{
+				grid.graph.nodes[i][x].posLixeira = 0;
+				grid.graph.nodes[i][x].cordLixeira = {x:posPonto[0],y:posPonto[1]};
+				break;
+			}
+		}
+		
+		move((x + 1) + (i * larguraGrid), Math.pow(larguraGrid, 2));
+
+	  if (x >= grid.graph.nodes[i].length - 1) {
+		  Log("Próxima linha");
+		  i++;
+		  x = 0;
+		  
+		  if (i >= grid.graph.nodes.length) {
+			Log("Grid Carregado!");
+			clearInterval(processor);
+			$("#cover").hide();
+			$("#btnInit").prop('disabled',false);
+		  }
+
+	  } else {
+		  Log("Próxima coluna");
+		  x++;
+	  }
+
+      busy = false;
+    }
+  }, 10);
+}
+
+function move(atual, maximo) {
+    var elem = document.getElementById("myBar"); 
+    var width = (atual / maximo * 100);
+	elem.style.width = width.toString() + '%'; 
+}
+

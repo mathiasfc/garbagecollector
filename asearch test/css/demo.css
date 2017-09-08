@@ -46,7 +46,7 @@ h2 {
     width: 400px;
     height: 400px;
     position: relative;
-    margin-top: 75px;
+    margin-top: 100px;
     border: 20px solid #7b7b7b;
 }
 #main {
@@ -158,4 +158,35 @@ legend {
 .infoDivText {
     color: #43ff43;
     font-weight: bold;
+}
+
+#divCkPosicoes{
+	    position: absolute;
+    top: 72px;
+    margin-left: 130px;
+}
+
+#myProgress {
+    z-index: 9999;
+    width: 100%;
+    top: 35%;
+    position: absolute;
+    background-color: grey;
+	
+}
+#myBar {
+    width: 1%;
+    height: 30px;
+    background-color: #43ff43;
+}
+
+#cover{
+	width: 470px;
+    height: 440px;
+    z-index: 999;
+    margin-left: 423px;
+    opacity: 1;
+    position: absolute;
+    background-color: black;
+	display:none;
 }
