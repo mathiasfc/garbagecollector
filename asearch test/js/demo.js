@@ -1,5 +1,5 @@
 //Trabalho IA T1
-var velocidadeAgente = 150;
+var velocidadeAgente = 100;
 
 class Agente {
     constructor(x, y, bateria, capacidade, distancia) {
@@ -311,6 +311,7 @@ Agente.prototype.initialize = function() {
 		if(agente.bateria <= grid.graph.nodes[agente.x][agente.y].posRecarga + 10){
 			if(!bVaiCarregar){
 				Log("Agente indo carregar");
+				$("#search_grid .row .grid_item[x=" +agente.x+ "][y=" + agente.y + "]").css("background-color","yellow");
 				infoAgenteAntesDeCarregar = {x:agente.x,y:agente.y};
 				bVaiCarregar = true;
 			}
