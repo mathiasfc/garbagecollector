@@ -252,7 +252,7 @@ Agente.prototype.initialize = function() {
         currentCell = $("#search_grid .row .grid_item[x=" + x + "][y=" + y + "]");
 
         //######Limpa Sujeira###################
-        if (currentCell.hasClass("sujeira")) {
+        if (currentCell.hasClass("sujeira") && agente.capacidade > 0) {
             currentCell.removeClass("sujeira");
             currentCell.html("");
             agente.capacidade--;
@@ -286,7 +286,7 @@ Agente.prototype.initialize = function() {
         if (agente.bateria <= grid.graph.nodes[agente.x][agente.y].posRecarga + 5) {
             if (!bVaiCarregar) {
                 Log("Agente indo carregar...");
-                //$("#search_grid .row .grid_item[x=" +agente.x+ "][y=" + agente.y + "]").css("background-color","yellow");
+                //$("#search_grid .row .grid_item[x=" +agente.x+ "][y=" + agente.y + "]").css("background-color","orange");
                 infoAgenteAntesDaAcao = {
                     x: agente.x,
                     y: agente.y
@@ -296,8 +296,8 @@ Agente.prototype.initialize = function() {
         }
 
         if (agente.capacidade == 0) {
-            Log("Capacidade máxima atingida.");
             if (!bVaiDespejar) {
+				Log("Capacidade máxima atingida.");
                 Log("Agente indo despejar...");
                 //$("#search_grid .row .grid_item[x=" +agente.x+ "][y=" + agente.y + "]").css("background-color","yellow");
                 infoAgenteAntesDaAcao = {
