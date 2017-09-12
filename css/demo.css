@@ -1,137 +1,188 @@
-html, body {
-	height:100%;
-	margin:0;
+html,
+body {
+    height: 100%;
+    margin: 0;
 }
 body {
-    font-family: "Palatino Linotype", "Book Antiqua", Palatino, serif;
+    font-family: Futura, "Trebuchet MS", Arial, sans-serif;
+    background-color: black;
+    color: white;
+    font-size: 14px;
+    height: auto;
 }
-
 h2 {
-    font-weight:normal;
+    font-weight: normal;
 }
 .links {
-    clear:both;
+    clear: both;
     background: rgba(0, 0, 0, .1);
     padding: 4px;
     padding-left: 20px;
-	padding-bottom:5px;
+    padding-bottom: 5px;
 }
 .links a {
     padding: 3px;
     color: #339;
 }
-.buttons { 
-    float:right;
-    position:relative;
+.buttons {
+    float: right;
+    position: relative;
     right: 10px;
     top: 10px;
 }
 .buttons a {
     text-decoration: none;
 }
-
 #content {
-	margin:0 auto;
-	width:98%;
+    margin: 0 auto;
+    width: 98%;
 }
-
 #controls {
-	text-align:center;
-	margin-bottom: 25px;
-	padding:5px;
-
+    text-align: center;
+    margin-bottom: 25px;
+    padding: 5px;
 }
-#search_grid  {
-	width:400px;
-	height:400px;
-	position: relative;
+#search_grid {
+    width: 400px;
+    height: 400px;
+    position: relative;
+    margin-top: 100px;
+    border: 20px solid #7b7b7b;
 }
-
-#main{
-	margin: auto;
-	width: 38%;
+#main {
+    margin: auto;
+    width: 38%;
 }
-
 .grid_item {
-	display: block;
-	border: 1px solid #bbb;
-	float: left;
-	line-height:12px;
-	font-size:10px;
+    display: block;
+    border: 1px solid rgba(123, 123, 123, 0.5);
+    float: left;
+    line-height: 12px;
+    font-size: 10px;
 }
 .grid_item.wall {
-  background-color: #000000;
+    background-color: #7b7b7b;
 }
 .grid_item.weight1 {
-  background-color: #ffffff;
+    background-color: black;
 }
 .grid_item.start {
-	background-color: #FF703F;
+    background-color: #FF703F;
 }
 .grid_item.active {
-	background-color: #FF703F;
+    background-color: blue;
 }
-.grid_item.finish {
-
+.grid_item.finish {} .lixeira {
+    text-align: center;
+    color: white;
+    font-size: 20px;
+    background-color: red !important;
 }
-
-.lixeira{
-	text-align: center;
-	color:red;
-	font-size:20px;
-	background-color:#ffd0d0 !important;
+.pontoRecarga {
+    text-align: center;
+    color: white;
+    font-size: 20px;
+    background-color: green !important;
 }
-
-.pontoRecarga{
-	text-align: center;
-	color:green;
-	font-size:20px;
-	background-color:#d6f2d6 !important;
+.sujeira {
+    text-align: center;
+    color: white;
+    font-size: 20px;
+    background-color: #3a3a3a !important;
 }
-
-.sujeira{
-	text-align: center;
-	color:grey;
-	font-size:20px;
-	background-color:#e8e8e8 !important;
-}
-
-.agente{
-	text-align: center;
-	color:grey;
-	font-size:20px;
-	background-color:red !important;
-	color: blue;
-	font-weight:bold;
-}
-
-#infoGrid{
-	position: absolute;
-    left: 7%;
-    width: 300px;
-	
-}
-
-#infoAgente{
-	position: absolute;
-	top:220px;
-    left: 7%;
-    width: 300px;
-}
-
-
-fieldset{
-	color:white;
-	background: #1d1d1d;
-}
-
-legend{
-	    color: white;
+.agente {
+    text-align: center;
+    color: grey;
+    font-size: 20px;
+    background-color: blue !important;
+    color: blue;
     font-weight: bold;
-	background:#757575;
 }
-
-.infoDivText{
-	color:#baffba;
-	font-weight:bold;
+#infoParametros {
+    position: absolute;
+    left: 7%;
+    width: 300px;
+    top: 20px;
+}
+#infoGrid {
+    position: absolute;
+    left: 7%;
+    top: 190px;
+    width: 300px;
+}
+#btnReset {
+    position: absolute;
+    top: 27px;
+    margin-left: 132px;
+    height: 40px;
+}
+#btnInit {
+    position: absolute;
+    top: 27px;
+    margin-left: 230px;
+    height: 40px;
+}
+#infoAgente {
+    position: absolute;
+    top: 300px;
+    left: 7%;
+    width: 300px;
+}
+#infoLog {
+    position: absolute;
+    top: 425px;
+    left: 7%;
+    width: 300px;
+}
+#logWindow {
+    height: 180px;
+    padding: 5px;
+}
+#logWindowInner {
+    background-color: black;
+    color: #43ff43;
+    height: 100%;
+    overflow-x: hidden;
+    font-size: 12px;
+    padding-left: 5px;
+}
+fieldset {
+    color: white;
+    background: #1d1d1d;
+}
+legend {
+    color: white;
+    font-weight: bold;
+    background: #757575;
+}
+.infoDivText {
+    color: #43ff43;
+    font-weight: bold;
+}
+#divCkPosicoes {
+    position: absolute;
+    top: 72px;
+    margin-left: 130px;
+}
+#myProgress {
+    z-index: 9999;
+    width: 100%;
+    top: 35%;
+    position: absolute;
+    background-color: grey;
+}
+#myBar {
+    width: 1%;
+    height: 30px;
+    background-color: #43ff43;
+}
+#cover {
+    width: 470px;
+    height: 440px;
+    z-index: 999;
+    margin-left: 423px;
+    opacity: 1;
+    position: absolute;
+    background-color: black;
+    display: none;
 }
