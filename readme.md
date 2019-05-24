@@ -1,6 +1,6 @@
 # Garbage Collector Simulation
 
-//image...
+![demonstration](https://raw.githubusercontent.com/mathiasfc/garbagecollector/master/assets/image.png)
 
 > Simulation made for artificial intelligence discipline.
 
